@@ -12,11 +12,12 @@ import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {Resource} from "../../types/ofs-rest-api";
 import {ResourceTreeComponent} from "../resource-tree/resource-tree.component";
 import {ControlDateComponent} from "../control-date/control-date.component";
+import {MatButtonToggleModule} from "@angular/material/button-toggle";
 
 @Component({
   selector: 'app-residencial-layout',
   standalone: true,
-  imports: [MatCheckboxModule, FormsModule, MatFormFieldModule, MatDatepickerModule, MatCardModule, MatInputModule, MatIconModule, NgIf, AsyncPipe, ResourceTreeComponent, ControlDateComponent],
+  imports: [MatCheckboxModule, FormsModule, MatFormFieldModule, MatDatepickerModule, MatCardModule, MatInputModule, MatIconModule, NgIf, AsyncPipe, ResourceTreeComponent, ControlDateComponent, MatButtonToggleModule],
   templateUrl: './residencial-layout.component.html',
   providers: [provideNativeDateAdapter()],
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,4 +1,4 @@
-<section style="display: flex; justify-content: space-around; align-items: center; flex-direction: column; width: 100%; height: 80%;">
+<section style="border: 2px solid red; display: flex; justify-content: space-around; align-items: center; flex-direction: column; width: 100%; height: 80%;">
   <ng-container *ngIf="vm$ | async as vm">
     <ng-container *ngIf="vm.resourcesTreeResidencial">
       <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; width: 100%; height: 100%;">
@@ -24,6 +24,12 @@
                 <app-control-date (rangeChange)="store.setSelectedRange($event)"></app-control-date>
               </mat-card-content>
             </mat-card>
+          </div>
+          <div>
+            <mat-button-toggle-group name="skill" aria-label="Aptitud laboral" [value]="vm.selectedSkillType" (change)="store.setSelectedSkillType($event.value)">
+              <mat-button-toggle value="multiskill">MultiSkill</mat-button-toggle>
+              <mat-button-toggle value="hospitality">Hospitality</mat-button-toggle>
+            </mat-button-toggle-group>
           </div>
         </div>
       </div>

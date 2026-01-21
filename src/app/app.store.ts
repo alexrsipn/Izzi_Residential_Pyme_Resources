@@ -31,6 +31,7 @@ interface State {
   resourcesTreePyme?: Resource[];
   selectedResidential: Resource[];
   selectedPyme: Resource[];
+  selectedSkillType: string;
 }
 
 const initialState: State = {
@@ -39,7 +40,8 @@ const initialState: State = {
   intervalDates: [],
   validatedDates: [],
   selectedResidential: [],
-  selectedPyme: []
+  selectedPyme: [],
+  selectedSkillType: 'PYME'
 };
 
 @Injectable({
@@ -111,12 +113,15 @@ export class AppStore extends ComponentStore<State> {
     } else {
       updatedSelectedResources = state.selectedPyme.filter(r => r.resourceId !== resource.resourceId)
     }
-
     return {
       ...state,
       selectedPyme: updatedSelectedResources
     }
   });
+  readonly setSelectedSkillType = this.updater<string>((state, selectedSkillType) => ({
+    ...state,
+    selectedSkillType
+  }));
 
   // Effects
   private readonly handleOpenMessage = this.effect<Message>(($) =>
@@ -207,9 +212,10 @@ export class AppStore extends ComponentStore<State> {
   private handleResourcesTree(resourcesTreeRaw: Resource[]) {
     const cleanResourcesTreeRaw = resourcesTreeRaw.filter((resource) =>
       resource.status === 'active' && resource.organization === 'default');
+    console.log(cleanResourcesTreeRaw.find(resource => resource.resourceId === 'RMJ98191'));
     const pymeTree = cleanResourcesTreeRaw.filter((resource) =>
       resource.workSkills?.items &&
-      resource.workSkills?.items?.some(skill => skill.workSkill === 'PYME' && dayjs(skill.endDate)>=dayjs()));
+      resource.workSkills?.items?.some(skill => ['PYME','PYME_HOSP'].includes(skill.workSkill) && dayjs(skill.endDate)>=dayjs()));
     const idsPyme = new Set(pymeTree.map(r => r.resourceId));
     const residencial = cleanResourcesTreeRaw.filter(resource => !idsPyme.has(resource.resourceId));
     const residencialTree = this.resourceTreeService.buildTree(residencial);
@@ -226,7 +232,7 @@ export class AppStore extends ComponentStore<State> {
   }
 
   private handleWorkSkillsToPyme(selectedResources: Resource[]): resourcesToSetWorkskills[] {
-    const {selectedRange} = this.get();
+    const {selectedRange, selectedSkillType} = this.get();
     const oneDayAfter = dayjs(selectedRange.to).add(1, 'day').format("YYYY-MM-DD");
     return selectedResources.map(resource => {
       if (!resource.workSkills?.items || resource.workSkills.items.length === 0) {
@@ -247,7 +253,7 @@ export class AppStore extends ComponentStore<State> {
       }));
 
       workSkills.push({
-        workSkill: 'PYME',
+        workSkill: selectedSkillType.toUpperCase(),
         ratio: 100,
         startDate: selectedRange.from!,
         endDate: selectedRange.to!
@@ -273,7 +279,7 @@ export class AppStore extends ComponentStore<State> {
     }
 
       const skillsMap = new Map<string, workSkillItem>();
-      resource.workSkills.items.forEach(skill => skill.workSkill !== 'PYME' && skillsMap.set(skill.workSkill, skill));
+      resource.workSkills.items.forEach(skill => !['PYME','PYME_HOSP'].includes(skill.workSkill) && skillsMap.set(skill.workSkill, skill));
 
       const workSkills: workSkills[] = Array.from(skillsMap.values()).map(item => ({
         workSkill: item.workSkill,

@@ -31,11 +31,11 @@
       </button>
     </div>-->
     <div style="display: flex; justify-content: space-around; align-items: center; width: 100%; height: 100%">
-      <div style="width: 45%; height: 100%">
+      <div [style.width]="vm.selectedPyme.length > 0 || (vm.selectedResidential.length > 0 && vm.selectedRange.valid) ? '20%' : (vm.selectedResidential.length > 0 ? '65%' : '42.5%')" style="height: 100%; transition: width 0.5s ease-in-out; overflow: hidden">
         <h2 style="text-align: center; padding: 1rem 0">Izzi Residencial</h2>
         <app-residencial-layout/>
       </div>
-      <div style="display: flex; justify-content: space-around; align-items: center; flex-direction: column; width: 15%; height: 100%;">
+      <div [style.width]="vm.selectedPyme.length > 0 || (vm.selectedResidential.length > 0 && vm.selectedRange.valid) ? '65%' : (vm.selectedResidential.length > 0 ? '20%' : '42.5%')" style="height: 100%; transition: width 0.5s ease-in-out; overflow: hidden">
         <button mat-flat-button color="primary" style="display: flex; flex-direction: column-reverse; height: 3rem" (click)="store.confirmMovement(true)" [disabled]="!vm.selectedRange.valid || vm.selectedResidential.length === 0">
           <span>Mover a PyME</span>
           <mat-icon>fast_forward</mat-icon>
