@@ -1,35 +1,21 @@
-<section style="display: flex; justify-content: space-around; align-items: center; flex-direction: column; width: 100%; height: 80%">
+<section class="flex flex-col justify-around items-center w-full h-[80%]">
   <ng-container *ngIf="vm$ | async as vm">
     <ng-container *ngIf="vm.resourcesTreePyme">
-      <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; height: 100%; width: 100%;">
-        <div style="width: 70%; max-width: 80%; margin: 0; padding: 0;">
-          <mat-form-field style="width: 100%">
+      <div class="flex flex-col justify-center align-center w-full h-full">
+        <div class="flex justify-center items-center w-full m-0 p-0">
+          <mat-form-field class="w-[70%] max-w-[80%]">
             <mat-label>Búsqueda <mat-icon>search</mat-icon></mat-label>
-            <input matInput type="search" [(ngModel)]="searchTerm">
+            <input matInput type="search" [ngModel]="vm.pymeSearchTerm" (ngModelChange)="store.setPymeSearchTerm($event)">
           </mat-form-field>
         </div>
-        <div style="width: 70%; max-width: 80%; overflow-y: auto; max-height: 70%">
-          <mat-card appearance="raised">
-            <mat-card-content>
-              @if (vm.resourcesTreePyme | filterResources: searchTerm; as filteredResources) {
-                @if (filteredResources.length > 0) {
-                  <span>
-                <ul>
-                  @for (resource of filteredResources; track resource.resourceId; let i = $index) {
-                    <li style="list-style: none">
-                      <mat-checkbox color="accent" #tooltip="matTooltip" matTooltip="{{resource.resourceId}} - {{resource.resourceType}}" [(ngModel)]="resource.selected" [checked]="resource.selected" (change)="onSelectionChange($event, resource)" [disabled]="vm.selectedResidential.length>0">{{resource.name}}</mat-checkbox>
-                    </li>
-                  }
-                </ul>
-              </span>
-                } @else {
-                  <div style="text-align: center; padding: 1rem">
-                    <p>No se encontraron resultados en la lista de recursos de PyME que coincidan con la búsqueda.</p>
-                  </div>
-                }
-              }
-            </mat-card-content>
-          </mat-card>
+        <div class="w-full h-[90%] flex flex-col justify-around items-center">
+          <div class="w-[70%] max-w-[80%] overflow-y-auto max-h-[80%]">
+            <mat-card appearance="raised">
+              <mat-card-content>
+                <app-resource-tree [resourceNode]="vm.resourcesTreePyme" [searchTerm]="vm.pymeSearchTerm" type="pyme"></app-resource-tree>
+              </mat-card-content>
+            </mat-card>
+          </div>
         </div>
       </div>
     </ng-container>

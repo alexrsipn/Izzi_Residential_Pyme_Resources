@@ -1,18 +1,23 @@
 <ng-container *ngIf="vm$ | async as vm">
   <ng-container *ngIf="displayableNodes; else noResultsMessage">
-    <ul style="padding: 0; list-style-type: none">
-      <li style="padding: 0; list-style-type: none">
-        <mat-checkbox color="primary" [(ngModel)]="displayableNodes.selected" [checked]="displayableNodes.selected" (change)="onSelectionChange($event)" [disabled]="displayableNodes.resourceType !== 'TEC' || vm.selectedPyme.length > 0" #tooltip="matTooltip" matTooltip="{{displayableNodes.resourceId}} - {{displayableNodes.resourceType}}">{{displayableNodes.name}}</mat-checkbox>
+    <ul class="list-none p-0 w-full">
+      <li class="list-none pl-4 w-full">
+        <mat-checkbox color="primary" [(ngModel)]="displayableNodes.selected" [checked]="displayableNodes.selected" (change)="onSelectionChange($event)" [disabled]="displayableNodes.resourceType !== 'TEC' || (type === 'residencial' ? vm.selectedPyme.length > 0 : vm.selectedResidential.length > 0)" #tooltip="matTooltip" matTooltip="{{displayableNodes.resourceId}} - {{displayableNodes.resourceType}}">
+          <ng-container *ngFor="let badge of getSkillIcons(displayableNodes)">
+            <mat-icon [matTooltip]="badge.tooltip" class="align-middle text-base mr-1 h-auto w-auto" [ngClass]="badge.color">{{badge.icon}}</mat-icon>
+          </ng-container>
+          {{displayableNodes.name}}
+        </mat-checkbox>
         <ul *ngIf="displayableNodes.children?.length">
           <ng-container *ngFor="let childNode of displayableNodes.children">
-            <app-resource-tree [resourceNode]="childNode" [searchTerm]="searchTerm"></app-resource-tree>
+            <app-resource-tree [resourceNode]="childNode" [searchTerm]="searchTerm" [type]="type"></app-resource-tree>
           </ng-container>
         </ul>
       </li>
     </ul>
   </ng-container>
   <ng-template #noResultsMessage>
-    <div style="text-align: center; padding: 1rem">
+    <div class="text-center p-4">
       <p>No se encontraron elementos en el árbol de Residencial que coincidan con la búsqueda.</p>
     </div>
   </ng-template>

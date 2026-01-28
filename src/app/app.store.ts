@@ -27,11 +27,14 @@ interface State {
   selectedRange: DataRange;
   intervalDates: string[];
   validatedDates: string[];
+  resourcesTreeRaw?: Resource[];
   resourcesTreeResidencial?: Resource;
   resourcesTreePyme?: Resource[];
   selectedResidential: Resource[];
   selectedPyme: Resource[];
   selectedSkillType: string;
+  residentialSearchTerm: string;
+  pymeSearchTerm: string;
 }
 
 const initialState: State = {
@@ -41,7 +44,9 @@ const initialState: State = {
   validatedDates: [],
   selectedResidential: [],
   selectedPyme: [],
-  selectedSkillType: 'PYME'
+  selectedSkillType: '',
+  residentialSearchTerm: '',
+  pymeSearchTerm: '',
 };
 
 @Injectable({
@@ -59,11 +64,21 @@ export class AppStore extends ComponentStore<State> {
     this.ofsPluginApi.ready();
   }
 
-  // Selectors
-  private readonly isLoading$ = this.select((state) => state.isLoading);
-
   //View Model
-  public readonly vm$ = this.select((state) => state)
+  private readonly resourceTreePymeGrouped$ = this.select(
+    this.select(state => state.resourcesTreePyme),
+    this.select(state => state.resourcesTreeRaw),
+    (resourcesTreePyme, allResources) => {
+      if (!resourcesTreePyme || resourcesTreePyme.length === 0 || !allResources) {
+        return null;
+      }
+      return this.resourceTreeService.groupForestByParentId(resourcesTreePyme, allResources, 'Nodo virtual Izzi')
+    }
+  );
+  public readonly vm$ = this.select(this.state$, this.resourceTreePymeGrouped$, (state, resourceTreePymeGrouped) => ({
+    ...state,
+    resourcesTreePyme: resourceTreePymeGrouped,
+  }))
 
   // Updaters
   readonly setSelectedRange = this.updater<DataRange>(
@@ -81,6 +96,10 @@ export class AppStore extends ComponentStore<State> {
     ...state,
     resourcesTreePyme,
   }));
+  readonly setResourcesTreeRaw = this.updater<Resource[]>((state, resourcesTreeRaw) => ({
+    ...state,
+    resourcesTreeRaw
+  }));
   readonly toggleResidentialSelection = this.updater((state, {resource, isSelected}: {resource: Resource, isSelected: boolean}) => {
     let updatedSelectedResources: Resource[];
 
@@ -94,7 +113,6 @@ export class AppStore extends ComponentStore<State> {
     } else {
       updatedSelectedResources = state.selectedResidential.filter(r => r.resourceId !== resource.resourceId)
     }
-
     return {
       ...state,
       selectedResidential: updatedSelectedResources
@@ -122,6 +140,14 @@ export class AppStore extends ComponentStore<State> {
     ...state,
     selectedSkillType
   }));
+  readonly setResidentialSearchTerm = this.updater<string>((state, residentialSearchTerm) => ({
+    ...state,
+    residentialSearchTerm,
+  }));
+  readonly setPymeSearchTerm = this.updater<string>((state, pymeSearchTerm) => ({
+    ...state,
+    pymeSearchTerm,
+  }));
 
   // Effects
   private readonly handleOpenMessage = this.effect<Message>(($) =>
@@ -147,6 +173,7 @@ export class AppStore extends ComponentStore<State> {
       }),
       concatMap(async () => this.getResourcesTreeRaw()),
       concatMap(() => this.ofsRestApi.getAllResources()),
+      tap((resourcesTreeRaw) => this.setResourcesTreeRaw(resourcesTreeRaw)),
       concatMap((resourcesTreeRaw) => resourcesTreeRaw && this.handleResourcesTree(resourcesTreeRaw)),
       tap(() => this.setIsLoading(false))
     )
@@ -212,15 +239,15 @@ export class AppStore extends ComponentStore<State> {
   private handleResourcesTree(resourcesTreeRaw: Resource[]) {
     const cleanResourcesTreeRaw = resourcesTreeRaw.filter((resource) =>
       resource.status === 'active' && resource.organization === 'default');
-    console.log(cleanResourcesTreeRaw.find(resource => resource.resourceId === 'RMJ98191'));
     const pymeTree = cleanResourcesTreeRaw.filter((resource) =>
       resource.workSkills?.items &&
       resource.workSkills?.items?.some(skill => ['PYME','PYME_HOSP'].includes(skill.workSkill) && dayjs(skill.endDate)>=dayjs()));
     const idsPyme = new Set(pymeTree.map(r => r.resourceId));
     const residencial = cleanResourcesTreeRaw.filter(resource => !idsPyme.has(resource.resourceId));
     const residencialTree = this.resourceTreeService.buildTree(residencial);
+    const pymeForest = this.resourceTreeService.buildForest(pymeTree);
     residencialTree && this.setResourcesTreeResidencial(residencialTree!);
-    pymeTree && this.setResourcesTreePyme(pymeTree!);
+    pymeTree && this.setResourcesTreePyme(pymeForest);
     return Promise.resolve(residencialTree);
   };
 
@@ -244,7 +271,7 @@ export class AppStore extends ComponentStore<State> {
 
       const skillsMap = new Map<string, workSkillItem>();
 
-      resource.workSkills.items.forEach(skill => !skill.endDate && skillsMap.set(skill.workSkill, skill));
+      resource.workSkills.items.forEach(skill => !['PYME', 'PYME_HOSP'].includes(skill.workSkill) && skillsMap.set(skill.workSkill, skill));
 
       const workSkills: workSkills[] = Array.from(skillsMap.values()).map(item => ({
         workSkill: item.workSkill,
@@ -297,7 +324,7 @@ export class AppStore extends ComponentStore<State> {
   }
 
   private calendarResource(toPyme: boolean) {
-    const { selectedRange } = this.get();
+    const { selectedRange, selectedSkillType } = this.get();
     const today = dayjs();
     if (toPyme) {
       const {selectedResidential} = this.get();
@@ -314,6 +341,30 @@ export class AppStore extends ComponentStore<State> {
             });
             calendarResourceArray.map(({date, recordType}) => {
               if (recordType === "non-working") {
+                if (selectedSkillType === "PYME_HOSP") {
+                  this.ofsRestApi.
+                  setAWorkSchedule(resource.resourceId, {
+                    startDate: date,
+                    endDate: date,
+                    comments: "Operaciones PyME API",
+                    isWorking: true,
+                    shiftLabel: "Hospitalidad_09_18",
+                    recordType: "extra_shift",
+                    recurrence: {
+                      recurrenceType: "daily",
+                      recurEvery: 1
+                    }
+                  })
+                    .subscribe(response => {
+                      if (response) {
+                        return Promise.resolve();
+                      } else {
+                        throw new Error(
+                          'Hubo un error al establecer el horario de trabajo del recurso'
+                        );
+                      }
+                    });
+                }
                 this.ofsRestApi.
                   setAWorkSchedule(resource.resourceId, {
                     startDate: date,
@@ -335,7 +386,7 @@ export class AppStore extends ComponentStore<State> {
                         'Hubo un error al establecer el horario de trabajo del recurso'
                       );
                     }
-                })
+                });
               }
             });
           }
@@ -355,7 +406,7 @@ export class AppStore extends ComponentStore<State> {
                 }
               })
             });
-            calendarResourceArray.map(({date, recordType, shiftLabel, comments}) => {
+            calendarResourceArray.map(({date, shiftLabel, comments}) => {
               if (comments?.includes("Operaciones PyME") && shiftLabel === "09:00-16:00") {
                 this.ofsRestApi.setAWorkSchedule(resource.resourceId, {
                   startDate: date,
@@ -387,10 +438,15 @@ export class AppStore extends ComponentStore<State> {
   }
 
   private clearBuffer() {
-    this.patchState({selectedResidential: []});
-    this.patchState({selectedPyme: []});
-    this.patchState({resourcesTreeResidencial: undefined});
-    this.patchState(({resourcesTreePyme: undefined}));
+    this.patchState({
+      selectedResidential: [],
+      selectedPyme: [],
+      resourcesTreeResidencial: undefined,
+      resourcesTreePyme: undefined,
+      selectedSkillType: '',
+      residentialSearchTerm: '',
+      pymeSearchTerm: ''
+    });
     this.setSelectedRange({from: null, to: null, valid: false});
   }
 

@@ -1,16 +1,8 @@
 @if (store.vm$ | async; as vm) { @if (vm.isLoading) {
 <app-spinner />
 }
-<main class="container">
-  <section
-    style="
-      height: 90%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    "
-  >
+<main class="h-screen">
+  <section class="h-[90%] flex flex-col justify-center items-center">
     <!-- <app-control-desk
       [controlDesks]="vm.controlDesk"
       (deskChanged)="store.setSelectedDesk($event)"
@@ -30,29 +22,29 @@
         Descargar
       </button>
     </div>-->
-    <div style="display: flex; justify-content: space-around; align-items: center; width: 100%; height: 100%">
-      <div [style.width]="vm.selectedPyme.length > 0 || (vm.selectedResidential.length > 0 && vm.selectedRange.valid) ? '20%' : (vm.selectedResidential.length > 0 ? '65%' : '42.5%')" style="height: 100%; transition: width 0.5s ease-in-out; overflow: hidden">
-        <h2 style="text-align: center; padding: 1rem 0">Izzi Residencial</h2>
+    <div class="relative flex justify-around items-center w-full h-full">
+      <div class="w-1/2 h-full overflow-hidden">
+        <h2 class="text-center pt-4 pb-0 m-0">Izzi Residencial</h2>
         <app-residencial-layout/>
       </div>
-      <div [style.width]="vm.selectedPyme.length > 0 || (vm.selectedResidential.length > 0 && vm.selectedRange.valid) ? '65%' : (vm.selectedResidential.length > 0 ? '20%' : '42.5%')" style="height: 100%; transition: width 0.5s ease-in-out; overflow: hidden">
-        <button mat-flat-button color="primary" style="display: flex; flex-direction: column-reverse; height: 3rem" (click)="store.confirmMovement(true)" [disabled]="!vm.selectedRange.valid || vm.selectedResidential.length === 0">
+      <div class="absolute inset-0 pointer-events-none flex flex-col justify-evenly items-center z-10">
+        <button class="pointer-events-auto flex flex-col justify-center items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 border-white text-white font-medium rounded hover:cursor-pointer disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed" (click)="store.confirmMovement(true)" [disabled]="!vm.selectedRange.valid || vm.selectedResidential.length === 0 || !vm.selectedSkillType">
           <span>Mover a PyME</span>
           <mat-icon>fast_forward</mat-icon>
         </button>
-        <button mat-flat-button color="accent" style="display: flex; flex-direction: column-reverse; height: 3rem" (click)="store.confirmMovement(false)" [disabled]="vm.selectedPyme.length === 0">
+        <button class="pointer-events-auto flex flex-col justify-center items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 border-white text-white font-medium rounded hover:cursor-pointer disabled:bg-gray-300 disabled:text-gray-400 disabled:cursor-not-allowed" (click)="store.confirmMovement(false)" [disabled]="vm.selectedPyme.length === 0">
           <span>Mover a Residencial</span>
           <mat-icon>fast_rewind</mat-icon>
         </button>
       </div>
-      <div style="width: 45%; height: 100%">
-        <h2 style="text-align: center; padding: 1rem 0">Izzi PyME</h2>
+      <div class="w-1/2 h-full overflow-hidden">
+        <h2 class="text-center pt-4 pb-0 m-0">Izzi PyME</h2>
         <app-pyme-layout/>
       </div>
     </div>
   </section>
-  <footer class="flex-evenly">
-    <button mat-raised-button color="warn" (click)="store.sendCloseMessage({})">
+  <footer class="w-full flex justify-center items-center">
+    <button class="bg-black border-white text-white font-semibold px-4 py-2 rounded hover:bg-gray-800" (click)="store.sendCloseMessage({})">
       Cerrar
     </button>
   </footer>

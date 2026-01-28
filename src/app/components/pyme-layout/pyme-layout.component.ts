@@ -1,4 +1,4 @@
-import {Component, SimpleChanges} from '@angular/core';
+import {Component} from '@angular/core';
 import {MatCheckboxChange, MatCheckboxModule} from "@angular/material/checkbox";
 import {FormsModule} from "@angular/forms";
 import {MatCardModule} from "@angular/material/card";
@@ -10,13 +10,13 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {AppStore} from "../../app.store";
 import {AsyncPipe, NgIf} from "@angular/common";
 import {Resource} from "../../types/ofs-rest-api";
-import {FilterResourcesPipe} from "./filter-resources.pipe";
+import {ResourceTreeComponent} from "../resource-tree/resource-tree.component";
 
 @Component({
   selector: 'app-pyme-layout',
   standalone: true,
   imports: [
-    MatCheckboxModule, FormsModule, MatCardModule, MatSlideToggleModule, MatFormField, MatIcon, MatInput, MatLabel, MatTooltipModule, AsyncPipe, NgIf, FilterResourcesPipe
+    MatCheckboxModule, FormsModule, MatCardModule, MatSlideToggleModule, MatFormField, MatIcon, MatInput, MatLabel, MatTooltipModule, AsyncPipe, NgIf, ResourceTreeComponent
   ],
   templateUrl: './pyme-layout.component.html',
 })

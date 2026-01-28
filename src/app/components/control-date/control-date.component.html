@@ -1,5 +1,5 @@
-<form [formGroup]="range" style="padding: 1rem">
-  <mat-form-field appearance="outline" style="display: block">
+<form [formGroup]="range" class="flex justify-center items-center">
+  <mat-form-field appearance="outline" class="block">
     <mat-label>Ingresar rango de fechas</mat-label>
     <mat-date-range-input [rangePicker]="picker" [dateFilter]="dateFilter">
       <input matStartDate formControlName="start" placeholder="Inicio" />

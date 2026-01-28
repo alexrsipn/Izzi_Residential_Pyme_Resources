@@ -4,7 +4,6 @@ import { MatButtonModule } from '@angular/material/button';
 import {MAT_DIALOG_DATA, MatDialog, MatDialogModule} from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
-import {CdkTrapFocus} from "@angular/cdk/a11y";
 
 @Injectable({
   providedIn: 'root'
@@ -48,9 +47,9 @@ export class DialogService {
   standalone: true,
   imports: [MatIconModule, MatButtonModule, MatDialogModule, CommonModule],
   template: `
-    <h1 mat-dialog-title style="margin-top: 1rem; display: flex">
+    <h1 mat-dialog-title class="mt-4 flex">
       <span>Error </span>
-      <span style="align-self: center;">
+      <span class="self-center">
         <mat-icon aria-hidden="false" aria-label="Error icon" fontIcon="error" color="warn"></mat-icon>
       </span>
     </h1>
@@ -65,7 +64,7 @@ export class DialogService {
       </ng-template>
     </mat-dialog-content>
     <mat-dialog-actions>
-      <button style="width: 100%;" mat-button mat-dialog-close>Cerrar</button>
+      <button class="w-full bg-blue-500 text-white py-2 px-4 border rounded" mat-dialog-close>Cerrar</button>
     </mat-dialog-actions>
   `
 })
@@ -78,9 +77,9 @@ export class ErrorDialogComponent {
   standalone: true,
   imports: [MatIconModule, MatButtonModule, MatDialogModule],
   template: `
-    <h1 mat-dialog-title style="margin-top: 1rem; display: flex">
+    <h1 mat-dialog-title class="mt-4 flex">
       <span>Éxito </span>
-      <span style="align-self: center;">
+      <span class="self-center">
         <mat-icon aria-hidden="false" aria-label="Success icon" fontIcon="check_circle" color="primary"></mat-icon>
       </span>
     </h1>
@@ -88,7 +87,7 @@ export class ErrorDialogComponent {
       <p>{{data}}</p>
     </mat-dialog-content>
     <mat-dialog-actions>
-      <button style="width: 100%;" mat-button mat-dialog-close>Cerrar</button>
+      <button class="w-full bg-blue-500 text-white py-2 px-4 border rounded" mat-dialog-close>Cerrar</button>
     </mat-dialog-actions>
   `
 })
@@ -105,9 +104,9 @@ export class SuccessDialogComponent {
     <mat-dialog-content>
       <p>{{data}}</p>
     </mat-dialog-content>
-    <mat-dialog-actions style="display: flex; justify-content: space-around; align-items: center">
-      <button style="width: 40%" mat-button mat-dialog-close [mat-dialog-close]="false">No</button>
-      <button style="width: 40%" mat-flat-button [mat-dialog-close]="true" color="primary" cdkFocusInitial>Si</button>
+    <mat-dialog-actions class="flex justify-around items-center">
+      <button class="w-1/2 bg-white text-black py-2 px-4 border rounded" mat-dialog-close [mat-dialog-close]="false">No</button>
+      <button class="w-1/2 bg-blue-500 text-white py-2 px-4 border rounded" [mat-dialog-close]="true">Si</button>
     </mat-dialog-actions>
   `
 })

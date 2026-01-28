@@ -1,35 +1,35 @@
-<section style="border: 2px solid red; display: flex; justify-content: space-around; align-items: center; flex-direction: column; width: 100%; height: 80%;">
+<section class="flex flex-col justify-around items-center w-full h-[80%]">
   <ng-container *ngIf="vm$ | async as vm">
     <ng-container *ngIf="vm.resourcesTreeResidencial">
-      <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; width: 100%; height: 100%;">
-        <div style="width: 70%; max-width: 80%; margin: 0; padding: 0;">
-          <mat-form-field style="width: 100%">
+      <div class="flex flex-col justify-center align-center w-full h-full">
+        <div class="flex justify-center items-center w-full m-0 p-0">
+          <mat-form-field class="w-[70%] max-w-[80%]">
             <mat-label>Búsqueda <mat-icon>search</mat-icon></mat-label>
-            <input matInput type="search" [(ngModel)]="value">
+            <input matInput type="search" [ngModel]="vm.residentialSearchTerm" (ngModelChange)="store.setResidentialSearchTerm($event)">
           </mat-form-field>
         </div>
-        <div style="width: 100%; height: 90%; display: flex; flex-direction: column; justify-content: space-around; align-items: center;">
-          <div style="width: 70%; max-width: 80%; overflow-y: auto; max-height: 50%">
+        <div class="w-full h-[90%] flex flex-col justify-around items-center">
+          <div class="w-[70%] max-w-[80%] overflow-y-auto max-h-[50%]">
             <mat-card appearance="raised">
               <mat-card-content>
-                <div *ngIf="vm.resourcesTreeResidencial" style="padding: 0 1rem">
-                  <app-resource-tree [resourceNode]="vm.resourcesTreeResidencial" [searchTerm]="value"></app-resource-tree>
+                <div *ngIf="vm.resourcesTreeResidencial" class="px-4" style="padding: 0 1rem">
+                  <app-resource-tree [resourceNode]="vm.resourcesTreeResidencial" [searchTerm]="vm.residentialSearchTerm" type="residencial"></app-resource-tree>
                 </div>
               </mat-card-content>
             </mat-card>
           </div>
-          <div style="width: 70%; max-width: 80%;">
+          <div class="w-[70%] max-w-[80%]">
             <mat-card appearance="raised">
-              <mat-card-content>
+              <mat-card-content class="p-1">
                 <app-control-date (rangeChange)="store.setSelectedRange($event)"></app-control-date>
+                <div class="w-full">
+                  <mat-button-toggle-group name="skill" aria-label="Aptitud laboral" [value]="vm.selectedSkillType" (change)="store.setSelectedSkillType($event.value)" class="w-full">
+                    <mat-button-toggle value="PYME" class="w-1/2">PyME MultiSkill <mat-icon class="text-blue-500">store</mat-icon></mat-button-toggle>
+                    <mat-button-toggle value="PYME_HOSP" class="w-1/2">PyME Hospitalidad <mat-icon class="text-orange-500">domain</mat-icon></mat-button-toggle>
+                  </mat-button-toggle-group>
+                </div>
               </mat-card-content>
             </mat-card>
-          </div>
-          <div>
-            <mat-button-toggle-group name="skill" aria-label="Aptitud laboral" [value]="vm.selectedSkillType" (change)="store.setSelectedSkillType($event.value)">
-              <mat-button-toggle value="multiskill">MultiSkill</mat-button-toggle>
-              <mat-button-toggle value="hospitality">Hospitality</mat-button-toggle>
-            </mat-button-toggle-group>
           </div>
         </div>
       </div>

@@ -44,7 +44,7 @@ const MY_DATE_FORMATS = {
     FormsModule,
     ReactiveFormsModule,
     MatDividerModule,
-    MatButtonModule,
+    MatButtonModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [

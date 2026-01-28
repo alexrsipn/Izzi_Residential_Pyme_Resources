@@ -1,20 +1,23 @@
-import {Component, inject, Input, signal, SimpleChanges} from '@angular/core';
+import {Component, inject, Input, SimpleChanges} from '@angular/core';
 import {Resource} from "../../types/ofs-rest-api";
 import {CommonModule} from "@angular/common";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatCheckboxChange, MatCheckboxModule} from "@angular/material/checkbox";
 import {FormsModule} from "@angular/forms";
 import {AppStore} from "../../app.store";
+import {MatIconModule} from "@angular/material/icon";
+import dayjs from 'dayjs';
 
 @Component({
   selector: 'app-resource-tree',
   standalone: true,
-  imports: [CommonModule, MatTooltipModule, MatCheckboxModule, FormsModule],
+  imports: [CommonModule, MatTooltipModule, MatCheckboxModule, FormsModule, MatIconModule],
   templateUrl: './resource-tree.component.html',
 })
 export class ResourceTreeComponent {
   @Input() resourceNode!: Resource;
   @Input() searchTerm: string = '';
+  @Input() type: 'residencial' | 'pyme' = 'residencial';
 
   private readonly store = inject(AppStore);
   vm$ = this.store.vm$;
@@ -62,7 +65,28 @@ export class ResourceTreeComponent {
 
   onSelectionChange(event: MatCheckboxChange): void {
     const isSelected = event.checked;
-    this.store.toggleResidentialSelection({resource: this.resourceNode, isSelected});
+    if (this.type === 'pyme') {
+      this.store.togglePymeSelection({resource: this.resourceNode, isSelected})
+    } else {
+      this.store.toggleResidentialSelection({resource: this.resourceNode, isSelected})
+    }
+  }
+
+  getSkillIcons(resource: Resource): {icon: string, tooltip: string, color: string}[]{
+    const icons: {icon: string, tooltip: string, color: string}[] = [];
+    if (!resource.workSkills?.items) return icons;
+    const today = dayjs();
+    const skills = resource.workSkills.items.filter(skill => {
+      const endDate = skill.endDate ? dayjs(skill.endDate) : null;
+      return !endDate || !today.isAfter(endDate, 'day');
+    }).map(s => s.workSkill);
+    if (skills.includes('PYME')) {
+      icons.push({icon: 'store', tooltip: 'PyME Multiskill', color: 'text-blue-500'});
+    }
+    if (skills.includes('PYME_HOSP')) {
+      icons.push({icon: 'domain', tooltip: 'PyME Hospitalidad', color: 'text-orange-500'});
+    }
+    return icons;
   }
 
 /*  private updateChildrenSelection(node: Resource, isChecked: boolean) {
