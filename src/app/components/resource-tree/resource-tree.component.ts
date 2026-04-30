@@ -36,7 +36,7 @@ export class ResourceTreeComponent {
       return;
     } else {
       const lowerSearchTerm = this.searchTerm.toLowerCase();
-      console.log(lowerSearchTerm);
+      /*console.log(lowerSearchTerm);*/
       const filteredNode = this._filterSingleNodeRecursive(this.resourceNode, lowerSearchTerm);
       this.displayableNodes = filteredNode ? filteredNode : null;
     }
